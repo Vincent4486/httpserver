@@ -1,7 +1,6 @@
 #include <stdlib.h> // exit, EXIT_FAILURE
 #include <stdio.h>  // snprintf
 #include <string.h> // strlen, strcmp, strtok, strdup
-#include <errno.h>  // errno
 
 #include "include/compat.h"
 

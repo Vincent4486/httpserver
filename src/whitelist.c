@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 
+#include "include/compat.h"
 #include "include/whitelist.h"
 
 /* ===== IP WHITELIST ===== */

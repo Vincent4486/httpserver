@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <string.h>
 
 #include "include/compat.h"
@@ -10,7 +9,7 @@
 
 #define MAX_QUEUE_SIZE 256
 
-typedef struct
+typedef struct queue_node
 {
     work_item_t work;
     struct queue_node *next;
@@ -118,7 +117,7 @@ void threadpool_submit(threadpool_t *pool, work_item_t work)
     queue_node_t *node = malloc(sizeof(queue_node_t));
     if (!node)
     {
-        log_error("Failed to allocate work item");
+        log_error_code(22, "Failed to allocate work item");
         close(work.client_fd);
         return;
     }

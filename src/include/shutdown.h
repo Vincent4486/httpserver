@@ -1,7 +1,6 @@
 #ifndef SHUTDOWN_H
 #define SHUTDOWN_H
 
-#include <signal.h>
 #include <stdatomic.h>
 
 /* Initialize signal handlers for graceful shutdown */

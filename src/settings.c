@@ -2,20 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <sys/stat.h>
-#include <errno.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <io.h>
-#else
-#include <unistd.h>
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#endif
-#endif
 
 #include "lib/cJSON.h"
+#include "include/compat.h"
 
 #include "include/settings.h"
 #include "include/logger.h"

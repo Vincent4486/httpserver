@@ -5,7 +5,6 @@
 #include <stdint.h>   // intmax_t
 #include <inttypes.h> // PRIdMAX
 #include <ctype.h>    // isxdigit
-#include <sys/time.h> // gettimeofday for timing
 #include <time.h>     // time, strptime, mktime
 
 #include "include/compat.h"
