@@ -19,9 +19,35 @@
 #include "include/access_log.h"
 #include "include/threadpool.h"
 
-int main()
+/* Helper: Process command-line arguments */
+static int process_arguments(int argc, char *argv[])
+{
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--config") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                set_config_path(argv[i + 1]);
+                i++;
+            }
+            else
+            {
+                fprintf(stderr, "Error: --config flag requires a path argument\n");
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int main(int argc, char *argv[])
 {
     setvbuf(stdout, NULL, _IONBF, 0);
+
+    /* Parse command-line arguments */
+    if (process_arguments(argc, argv) != 0)
+        return 1;
 
 #ifdef _WIN32
     WSADATA wsaData;

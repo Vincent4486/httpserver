@@ -4,6 +4,9 @@
 
 #include "include/compat.h"
 #include "include/whitelist.h"
+#include "include/client.h"
+#include "include/access_log.h"
+#include "include/settings.h"
 
 /* ===== IP WHITELIST ===== */
 
@@ -104,4 +107,20 @@ int is_file_whitelisted(const char *request_path, char **whitelist_files, int co
     }
 
     return 0;
+}
+
+void handle_whitelist(int client_fd, const char *client_ip, const char *method, const char *path){
+    int file_count = 0;
+    char **whitelist_files = get_whitelist_files(&file_count);
+
+    if (file_count > 0 && !is_file_whitelisted(path, whitelist_files, file_count))
+    {
+        send_403(client_fd);
+        access_log_request(client_ip, method, path, "HTTP/1.1", 403, 0, NULL, NULL);
+        free_whitelist_entries(whitelist_files, file_count);
+        return;
+    }
+
+    if (whitelist_files)
+        free_whitelist_entries(whitelist_files, file_count);
 }

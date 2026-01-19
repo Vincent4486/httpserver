@@ -4,6 +4,9 @@
 
 #include <stdbool.h>
 
+/* Set custom config file path (must be called before any get_* functions) */
+void set_config_path(const char *path);
+
 const char *get_server_directory();   // ✅ correct declaration
 const int get_server_port();          // ✅ correct declaration
 const char *get_server_host();        // ✅ correct declaration

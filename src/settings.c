@@ -27,6 +27,13 @@
 #endif
 
 static cJSON *cached_config = NULL;
+static char custom_config_path[1024] = {0};
+
+void set_config_path(const char *path)
+{
+    if (path)
+        strncpy(custom_config_path, path, sizeof(custom_config_path) - 1);
+}
 
 static bool directory_exists(const char *path)
 {
@@ -36,6 +43,9 @@ static bool directory_exists(const char *path)
 
 char *get_config_path()
 {
+    if (custom_config_path[0] != '\0')
+        return custom_config_path;
+
     static char path[1024];
     static char config_path[1024];
 
