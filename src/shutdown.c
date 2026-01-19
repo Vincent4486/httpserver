@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <stdatomic.h>
+#include <errno.h>
 
-#include "include/compat.h"
 #include "include/shutdown.h"
 #include "include/logger.h"
 

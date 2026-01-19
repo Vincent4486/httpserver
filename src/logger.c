@@ -2,9 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <limits.h>
+#include <time.h>
 #include <stdint.h>
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
-#include "include/compat.h"
+#ifdef _WIN32
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <unistd.h>
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "include/logger.h"
 
 #include <stdarg.h>

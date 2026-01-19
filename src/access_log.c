@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 #include <string.h>
 
 #include "include/access_log.h"
 #include "include/logger.h"
-#include "include/compat.h"
 
 static FILE *log_file_handle = NULL;
 static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -22,7 +22,7 @@ void access_log_init(const char *log_file)
     log_file_handle = fopen(log_file, "a");
     if (log_file_handle == NULL)
     {
-        log_error_code(21, "Failed to open access log file");
+        log_error("Failed to open access log file");
         pthread_mutex_unlock(&log_mutex);
         return;
     }

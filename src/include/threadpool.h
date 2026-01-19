@@ -2,7 +2,8 @@
 #define THREADPOOL_H
 
 #include <stdbool.h>
-#include "compat.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 typedef struct threadpool threadpool_t;
 

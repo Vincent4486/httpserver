@@ -75,20 +75,13 @@ typedef intptr_t ssize_t;
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <signal.h>
-#include <pthread.h>
+#include <limits.h>
 /* sockets for POSIX */
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#endif
 
 #define PATH_SEPARATOR '/'
 #define PATH_SEPARATOR_STR "/"
