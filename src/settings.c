@@ -41,6 +41,30 @@ static bool directory_exists(const char *path)
     return stat(path, &info) == 0 && S_ISDIR(info.st_mode);
 }
 
+/* Extract directory from a file path, handling both / and \ separators */
+static void get_directory_from_path(const char *filepath, char *dir_out, size_t dir_size)
+{
+    strncpy(dir_out, filepath, dir_size - 1);
+    dir_out[dir_size - 1] = '\0';
+    
+    /* Find last separator (either / or \) */
+    char *last_sep = NULL;
+    char *last_slash = strrchr(dir_out, '/');
+    char *last_backslash = strrchr(dir_out, '\\');
+    
+    if (last_slash && last_backslash)
+        last_sep = (last_slash > last_backslash) ? last_slash : last_backslash;
+    else if (last_slash)
+        last_sep = last_slash;
+    else if (last_backslash)
+        last_sep = last_backslash;
+    
+    if (last_sep)
+        *last_sep = '\0';
+    else
+        strcpy(dir_out, "."); /* No separator found, use current directory */
+}
+
 char *get_config_path()
 {
     if (custom_config_path[0] != '\0')
@@ -155,18 +179,18 @@ const char *get_server_directory()
     const char *path = dir->valuestring;
     if (strcmp(path, "default") == 0)
     {
-        char *executable_dir = get_config_path();
-        char *last_slash = strrchr(executable_dir, '/');
-        if (last_slash)
-            *last_slash = '\0';
+        char *config_file_path = get_config_path();
+        static char executable_dir[1024];
+        get_directory_from_path(config_file_path, executable_dir, sizeof(executable_dir));
 
         static char default_dir[1024];
-        snprintf(default_dir, sizeof(default_dir), "%s/server-content", executable_dir);
+        snprintf(default_dir, sizeof(default_dir), "%s%cserver-content", 
+                 executable_dir, PATH_SEPARATOR);
 
         if (!directory_exists(default_dir))
         {
 #ifdef _WIN32
-            if (mkdir(default_dir) != 0)
+            if (_mkdir(default_dir) != 0)
 #else
             if (mkdir(default_dir, 0700) != 0)
 #endif
@@ -307,11 +331,51 @@ const char *get_access_log_file(void)
 {
     load_config();
     cJSON *log_file = cJSON_GetObjectItemCaseSensitive(cached_config, "access-log-file");
-    if (!cJSON_IsString(log_file) || log_file->valuestring == NULL)
+    const char *log_path = cJSON_IsString(log_file) && log_file->valuestring != NULL
+                               ? log_file->valuestring
+                               : "log/access.log"; /* Default path */
+
+    /* If path is absolute, return as-is */
+#ifdef _WIN32
+    if ((log_path[0] != '\0' && log_path[1] == ':') || /* C:\ style */
+        log_path[0] == '\\' || log_path[0] == '/')     /* \path or /path */
+#else
+    if (log_path[0] == '/')
+#endif
     {
-        return "log/access.log"; /* Default path */
+        return log_path;
     }
-    return log_file->valuestring;
+
+    /* For relative paths, resolve relative to config directory */
+    static char resolved_log_path[1024];
+    char *config_file_path = get_config_path();
+    static char config_dir[1024];
+    get_directory_from_path(config_file_path, config_dir, sizeof(config_dir));
+
+    snprintf(resolved_log_path, sizeof(resolved_log_path), "%s%c%s",
+             config_dir, PATH_SEPARATOR, log_path);
+
+    /* Create log directory if it doesn't exist */
+    static char log_dir[1024];
+    get_directory_from_path(resolved_log_path, log_dir, sizeof(log_dir));
+
+    struct stat st = {0};
+    if (stat(log_dir, &st) == -1)
+    {
+#ifdef _WIN32
+        if (_mkdir(log_dir) != 0)
+#else
+        if (mkdir(log_dir, 0700) != 0)
+#endif
+        {
+            char err_msg[256];
+            snprintf(err_msg, sizeof(err_msg), "Failed to create log directory: %s", log_dir);
+            log_error_code(22, "%s", err_msg);
+            /* Continue anyway - fopen will fail with a clearer message */
+        }
+    }
+
+    return resolved_log_path;
 }
 
 const bool get_enable_access_logging(void)
